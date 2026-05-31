@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML, CSS & JavaScript — A Primer</title>
+  <style>
+    :root {
+      --bg: #f8f8fc;
+      --surface: #ffffff;
+      --border: #e0e0ee;
+      --text: #1a1a2e;
+      --muted: #6670a0;
+      --accent: #3a6fd8;
+      --accent2: #9040c0;
+      --accent3: #c04080;
+      --code-bg: #12121e;
+      --code-text: #d0d8ff;
+      --html-c: #f4a261;
+      --css-c: #64b5f6;
+      --js-c: #a5d6a7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 17px; line-height: 1.75;
+    }
+    a { color: var(--accent); }
+
+    /* Layout */
+    .page { max-width: 780px; margin: 0 auto; padding: 48px 24px 100px; }
+
+    /* Hero */
+    .hero { margin-bottom: 64px; }
+    .hero h1 { font-size: 32px; line-height: 1.2; margin-bottom: 12px; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { color: var(--muted); font-size: 16px; max-width: 560px; }
+    .three-things {
+      display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap;
+    }
+    .pill {
+      padding: 6px 14px; border-radius: 20px;
+      font-family: 'Courier New', monospace; font-size: 13px; font-weight: bold;
+    }
+    .pill.html { background: #fff3e0; color: #b35f00; border: 1px solid #f4a261; }
+    .pill.css  { background: #e3f0ff; color: #0d47a1; border: 1px solid #64b5f6; }
+    .pill.js   { background: #e8f5e9; color: #1b5e20; border: 1px solid #66bb6a; }
+
+    /* Sections */
+    .part {
+      border-top: 2px solid var(--border);
+      padding-top: 48px; margin-bottom: 56px;
+    }
+    .part-label {
+      font-family: 'Courier New', monospace; font-size: 11px;
+      letter-spacing: 3px; text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .part-label.html { color: #b35f00; }
+    .part-label.css  { color: #0d47a1; }
+    .part-label.js   { color: #2e7d32; }
+    .part-label.all  { color: var(--muted); }
+    h2 { font-size: 26px; margin-bottom: 16px; }
+    h3 { font-size: 18px; margin: 28px 0 10px; color: var(--accent2); }
+    p { margin-bottom: 14px; }
+
+    /* Analogy boxes */
+    .analogy {
+      background: var(--surface); border: 1px solid var(--border);
+      border-left: 4px solid var(--accent);
+      padding: 16px 20px; border-radius: 4px; margin: 20px 0;
+      font-size: 15px; color: var(--muted);
+    }
+    .analogy strong { color: var(--text); }
+
+    /* Code blocks */
+    pre {
+      background: var(--code-bg); color: var(--code-text);
+      padding: 20px 22px; border-radius: 6px; overflow-x: auto;
+      font-family: 'Courier New', monospace; font-size: 13px;
+      line-height: 1.65; margin: 16px 0;
+    }
+    code { font-family: 'Courier New', monospace; font-size: 14px; }
+    p code, li code {
+      background: #ebebf8; color: #4a2080;
+      padding: 1px 5px; border-radius: 3px; font-size: 13px;
+    }
+
+    /* Syntax highlight colours inside <pre> */
+    .tag   { color: #f4a261; }   /* HTML tags */
+    .attr  { color: #90caf9; }   /* attributes */
+    .val   { color: #a5d6a7; }   /* attribute values */
+    .com   { color: #546e7a; font-style: italic; }  /* comments */
+    .kw    { color: #ce93d8; }   /* JS keywords */
+    .fn    { color: #80cbc4; }   /* JS function names */
+    .str   { color: #f48fb1; }   /* strings */
+    .num   { color: #ffcc80; }   /* numbers */
+    .prop  { color: #90caf9; }   /* CSS properties */
+    .propv { color: #a5d6a7; }   /* CSS values */
+    .sel   { color: #f4a261; }   /* CSS selectors */
+
+    /* Live demo boxes */
+    .demo {
+      border: 1px solid var(--border); border-radius: 6px;
+      overflow: hidden; margin: 16px 0;
+    }
+    .demo-label {
+      background: #f0f0f8; padding: 6px 14px;
+      font-family: 'Courier New', monospace; font-size: 11px;
+      color: var(--muted); letter-spacing: 1px; text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .demo-body { padding: 20px 24px; background: var(--surface); }
+
+    /* Tracing table */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 15px; }
+    th { text-align: left; padding: 8px 12px; background: #f0f0f8; color: var(--muted); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+    td { padding: 10px 12px; border-top: 1px solid var(--border); vertical-align: top; }
+    td:first-child { font-family: 'Courier New', monospace; font-size: 13px; color: var(--accent2); white-space: nowrap; }
+
+    /* Callout */
+    .callout {
+      background: #f0f4ff; border: 1px solid #c5d3f8;
+      border-radius: 6px; padding: 16px 20px; margin: 20px 0; font-size: 15px;
+    }
+    .callout strong { color: var(--accent); }
+
+    /* Navigation */
+    .nav {
+      position: fixed; top: 0; right: 0; width: 180px;
+      padding: 20px 16px; font-size: 12px; line-height: 2.2;
+      color: var(--muted); background: rgba(248,248,252,0.9);
+      backdrop-filter: blur(6px); border-left: 1px solid var(--border);
+      height: 100vh; overflow-y: auto;
+    }
+    .nav a { display: block; color: var(--muted); text-decoration: none; transition: color 0.1s; }
+    .nav a:hover { color: var(--accent); }
+    .nav-title { font-family: 'Courier New', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; color: #bbb; }
+
+    @media (max-width: 960px) { .nav { display: none; } }
+
+    ul { padding-left: 22px; margin-bottom: 14px; }
+    li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-title">Contents</div>
+  <a href="#intro">Overview</a>
+  <a href="#html">HTML — Structure</a>
+  <a href="#css">CSS — Style</a>
+  <a href="#js">JavaScript — Behaviour</a>
+  <a href="#together">All together</a>
+  <a href="#index">In index.html</a>
+</nav>
+
+<div class="page">
+
+  <!-- ── Hero ── -->
+  <div class="hero" id="intro">
+    <h1>How a web page is built — <span>a short primer</span></h1>
+    <p>Written for someone who is curious but hasn't written code before. Uses the 4D sphere visualiser (<code>index.html</code>) as a running example.</p>
+    <div class="three-things">
+      <span class="pill html">HTML — structure</span>
+      <span class="pill css">CSS — style</span>
+      <span class="pill js">JavaScript — behaviour</span>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <strong>The house analogy.</strong> Think of a web page as a house.
+    <strong>HTML</strong> is the brickwork — it decides what rooms exist and what order they go in.
+    <strong>CSS</strong> is the interior design — paint colours, furniture, lighting.
+    <strong>JavaScript</strong> is the electricity — it makes things move, respond, and change.
+    All three live in the same file and work together.
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════ HTML -->
+  <div class="part" id="html">
+    <div class="part-label html">Part 1</div>
+    <h2>HTML — Structure</h2>
+
+    <p>HTML stands for <em>HyperText Markup Language</em>. It describes the contents of a page using <strong>elements</strong>, each wrapped in <strong>tags</strong>.</p>
+
+    <h3>Tags</h3>
+    <p>A tag is a word inside angle brackets. Most elements have an opening tag and a closing tag (with a slash). Everything between them is the element's content.</p>
+
+<pre><span class="tag">&lt;p&gt;</span>This is a paragraph.<span class="tag">&lt;/p&gt;</span>
+
+<span class="tag">&lt;h1&gt;</span>This is a big heading.<span class="tag">&lt;/h1&gt;</span>
+
+<span class="tag">&lt;button&gt;</span>Click me<span class="tag">&lt;/button&gt;</span></pre>
+
+    <h3>Attributes</h3>
+    <p>Tags can carry extra information called <strong>attributes</strong> — written inside the opening tag as <code>name="value"</code> pairs.</p>
+
+<pre><span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"range"</span> <span class="attr">min</span>=<span class="val">"-180"</span> <span class="attr">max</span>=<span class="val">"180"</span> <span class="attr">value</span>=<span class="val">"0"</span><span class="tag">&gt;</span>
+
+<span class="com">&lt;!-- That renders as the slider below: --&gt;</span></pre>
+
+    <div class="demo">
+      <div class="demo-label">live result</div>
+      <div class="demo-body">
+        <input type="range" min="-180" max="180" value="0" style="width:100%">
+      </div>
+    </div>
+
+    <p>Two attributes are especially important because CSS and JavaScript use them to target specific elements:</p>
+    <ul>
+      <li><code>id="name"</code> — a unique label for one element (like a name tag)</li>
+      <li><code>class="name"</code> — a group label shared by many elements</li>
+    </ul>
+
+    <h3>Nesting</h3>
+    <p>Elements live inside other elements, forming a tree. The outer element is called the <strong>parent</strong>; the inner ones are <strong>children</strong>.</p>
+
+<pre><span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="val">"panel"</span><span class="tag">&gt;</span>           <span class="com">&lt;!-- parent --&gt;</span>
+
+  <span class="tag">&lt;h1&gt;</span>4D Sphere<span class="tag">&lt;/h1&gt;</span>       <span class="com">&lt;!-- child --&gt;</span>
+
+  <span class="tag">&lt;div</span> <span class="attr">class</span>=<span class="val">"ctrl"</span><span class="tag">&gt;</span>         <span class="com">&lt;!-- child --&gt;</span>
+    <span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"range"</span><span class="tag">&gt;</span>   <span class="com">&lt;!-- grandchild --&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+<span class="tag">&lt;/div&gt;</span></pre>
+
+    <div class="callout">
+      This nesting structure is called the <strong>DOM</strong> — Document Object Model. JavaScript can walk this tree, find any element, and change it.
+    </div>
+
+    <h3>Common elements</h3>
+    <table>
+      <tr><th>Tag</th><th>What it is</th></tr>
+      <tr><td>&lt;div&gt;</td><td>A generic box — used to group things together</td></tr>
+      <tr><td>&lt;p&gt;</td><td>A paragraph of text</td></tr>
+      <tr><td>&lt;h1&gt; … &lt;h6&gt;</td><td>Headings, largest to smallest</td></tr>
+      <tr><td>&lt;span&gt;</td><td>Inline box — wraps a word or phrase inside a line of text</td></tr>
+      <tr><td>&lt;button&gt;</td><td>A clickable button</td></tr>
+      <tr><td>&lt;input&gt;</td><td>User input — sliders, text boxes, checkboxes</td></tr>
+      <tr><td>&lt;select&gt;</td><td>A dropdown menu</td></tr>
+      <tr><td>&lt;script&gt;</td><td>Contains (or links to) JavaScript code</td></tr>
+      <tr><td>&lt;style&gt;</td><td>Contains CSS rules</td></tr>
+    </table>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════ CSS -->
+  <div class="part" id="css">
+    <div class="part-label css">Part 2</div>
+    <h2>CSS — Style</h2>
+
+    <p>CSS stands for <em>Cascading Style Sheets</em>. It controls how elements look — colours, sizes, spacing, fonts, layout.</p>
+
+    <h3>The rule</h3>
+    <p>A CSS rule has two parts: a <strong>selector</strong> (which element to style) and one or more <strong>declarations</strong> (what to do to it).</p>
+
+<pre><span class="sel">selector</span> {
+  <span class="prop">property</span>: <span class="propv">value</span>;
+  <span class="prop">another-property</span>: <span class="propv">another-value</span>;
+}</pre>
+
+    <h3>Selectors</h3>
+    <table>
+      <tr><th>Selector</th><th>Targets</th><th>Example</th></tr>
+      <tr><td>p</td><td>All &lt;p&gt; elements</td><td><code>p { color: red; }</code></td></tr>
+      <tr><td>#name</td><td>The element with <code>id="name"</code></td><td><code>#panel { width: 210px; }</code></td></tr>
+      <tr><td>.name</td><td>All elements with <code>class="name"</code></td><td><code>.ctrl { margin-bottom: 11px; }</code></td></tr>
+    </table>
+
+    <h3>Common properties</h3>
+    <table>
+      <tr><th>Property</th><th>What it controls</th></tr>
+      <tr><td>color</td><td>Text colour</td></tr>
+      <tr><td>background</td><td>Background colour or image</td></tr>
+      <tr><td>font-size</td><td>How big the text is</td></tr>
+      <tr><td>font-family</td><td>Which typeface to use</td></tr>
+      <tr><td>width / height</td><td>How big the element is</td></tr>
+      <tr><td>padding</td><td>Space inside the element, between content and border</td></tr>
+      <tr><td>margin</td><td>Space outside the element, between it and neighbours</td></tr>
+      <tr><td>border</td><td>A line around the element</td></tr>
+      <tr><td>display</td><td>How the element sits in the flow (block, flex, none…)</td></tr>
+      <tr><td>position</td><td>How the element is positioned (fixed, absolute…)</td></tr>
+    </table>
+
+    <h3>A live example</h3>
+    <p>The box below is an HTML element. Try editing the CSS values to change how it looks.</p>
+
+    <div class="demo">
+      <div class="demo-label">live demo — edit the style attribute</div>
+      <div class="demo-body">
+        <div id="demoBox" style="
+          width: 200px;
+          height: 80px;
+          background: #3a6fd8;
+          border-radius: 8px;
+          color: white;
+          font-family: 'Courier New', monospace;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">I am a &lt;div&gt;</div>
+        <p style="margin-top:12px;font-size:13px;color:#888">
+          Right-click → Inspect → find this element → edit its <code>style</code> attribute to experiment.
+        </p>
+      </div>
+    </div>
+
+    <h3>Where CSS lives</h3>
+    <p>In <code>index.html</code>, all the CSS is inside a <code>&lt;style&gt;</code> block in the <code>&lt;head&gt;</code>. For example, the sidebar panel is styled like this:</p>
+
+<pre><span class="sel">#panel</span> {
+  <span class="prop">position</span>: <span class="propv">fixed</span>;        <span class="com">/* stays put while you scroll */</span>
+  <span class="prop">top</span>: <span class="propv">0</span>; <span class="prop">left</span>: <span class="propv">0</span>; <span class="prop">bottom</span>: <span class="propv">0</span>;
+  <span class="prop">width</span>: <span class="propv">210px</span>;
+  <span class="prop">background</span>: <span class="propv">rgba(4,4,18,0.94)</span>; <span class="com">/* near-black, slightly transparent */</span>
+  <span class="prop">backdrop-filter</span>: <span class="propv">blur(12px)</span>; <span class="com">/* frosted-glass effect */</span>
+}</pre>
+
+    <div class="callout">
+      <strong>Colours in CSS</strong> can be written as names (<code>red</code>), hex codes (<code>#3a6fd8</code>), or <code>rgb()</code>/<code>rgba()</code> — the fourth number in rgba is <em>opacity</em> (0 = invisible, 1 = solid).
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════ JavaScript -->
+  <div class="part" id="js">
+    <div class="part-label js">Part 3</div>
+    <h2>JavaScript — Behaviour</h2>
+
+    <p>JavaScript (JS) is a programming language that runs inside the browser. It can read and change the page in response to events — clicks, slider moves, the passage of time.</p>
+
+    <h3>Variables</h3>
+    <p>A variable stores a value. Use <code>const</code> when the value won't change, <code>let</code> when it might.</p>
+
+<pre><span class="kw">const</span> radius = <span class="num">1.0</span>;          <span class="com">// a number that won't change</span>
+<span class="kw">let</span> angle = <span class="num">0</span>;               <span class="com">// a number we'll update every frame</span>
+<span class="kw">const</span> name = <span class="str">"Hopf fiber"</span>;   <span class="com">// text (called a string)</span>
+<span class="kw">const</span> animating = <span class="kw">true</span>;      <span class="com">// a boolean: true or false</span></pre>
+
+    <h3>Functions</h3>
+    <p>A function is a reusable block of code. You <strong>define</strong> it once, then <strong>call</strong> it by name whenever you need it.</p>
+
+<pre><span class="com">// Define</span>
+<span class="kw">function</span> <span class="fn">double</span>(x) {
+  <span class="kw">return</span> x * <span class="num">2</span>;
+}
+
+<span class="com">// Call</span>
+<span class="kw">const</span> result = <span class="fn">double</span>(<span class="num">5</span>);  <span class="com">// result is now 10</span></pre>
+
+    <p>In <code>index.html</code>, <code>stereo()</code> is a function that takes a 4D point and returns its 3D projection:</p>
+
+<pre><span class="kw">function</span> <span class="fn">stereo</span>([x, y, z, w]) {
+  <span class="kw">const</span> d = <span class="num">1</span> - w;         <span class="com">// distance from north pole</span>
+  <span class="kw">return</span> [x/d, y/d, z/d]; <span class="com">// the projected 3D point</span>
+}</pre>
+
+    <h3>Objects</h3>
+    <p>An object groups related values together under one name, using <code>{ key: value }</code> syntax.</p>
+
+<pre><span class="kw">const</span> S = {
+  nFibers: <span class="num">64</span>,      <span class="com">// how many fibers to draw</span>
+  speed: <span class="num">0.4</span>,       <span class="com">// animation speed</span>
+  animating: <span class="kw">true</span>,  <span class="com">// is it running?</span>
+};
+
+<span class="com">// Read a value:</span>
+console.<span class="fn">log</span>(S.speed);  <span class="com">// prints 0.4</span>
+
+<span class="com">// Change a value:</span>
+S.speed = <span class="num">1.0</span>;</pre>
+
+    <h3>Events</h3>
+    <p>The browser fires <strong>events</strong> when the user interacts — clicks, key presses, slider moves. You attach a function (called a <strong>listener</strong>) that runs when the event happens.</p>
+
+<pre><span class="kw">const</span> btn = document.<span class="fn">getElementById</span>(<span class="str">'bPause'</span>);
+
+btn.<span class="fn">addEventListener</span>(<span class="str">'click'</span>, () => {
+  S.animating = !S.animating;  <span class="com">// flip true↔false</span>
+});</pre>
+
+    <div class="demo">
+      <div class="demo-label">live demo</div>
+      <div class="demo-body">
+        <button id="demoBtn" style="padding:8px 18px;background:#3a6fd8;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px">
+          Click me
+        </button>
+        <p id="demoCount" style="margin-top:10px;font-family:'Courier New',monospace;font-size:13px;color:#666">
+          clicked 0 times
+        </p>
+      </div>
+    </div>
+
+    <h3>The animation loop</h3>
+    <p>To make things move smoothly, JavaScript has <code>requestAnimationFrame</code> — it calls your function ~60 times per second, in sync with the screen.</p>
+
+<pre><span class="kw">function</span> <span class="fn">loop</span>() {
+  <span class="fn">requestAnimationFrame</span>(loop); <span class="com">// schedule next call</span>
+  angle += <span class="num">0.01</span>;               <span class="com">// advance the angle</span>
+  <span class="fn">redraw</span>();                    <span class="com">// update what's on screen</span>
+}
+
+<span class="fn">loop</span>(); <span class="com">// start it</span></pre>
+
+    <p>This is exactly how <code>index.html</code> works — the render loop at the bottom of the script runs every frame, advances <code>S.animAngle</code>, and calls <code>redrawFibers()</code> to update the positions.</p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════ Together -->
+  <div class="part" id="together">
+    <div class="part-label all">Part 4</div>
+    <h2>All three together</h2>
+
+    <p>Let's trace what happens the moment you move the <strong>Speed slider</strong> in <code>index.html</code>.</p>
+
+    <table>
+      <tr><th>Layer</th><th>What it does</th></tr>
+      <tr>
+        <td>HTML</td>
+        <td>The <code>&lt;input type="range" id="sSp"&gt;</code> element exists in the page. The browser draws it as a slider automatically.</td>
+      </tr>
+      <tr>
+        <td>CSS</td>
+        <td>The rule <code>input[type=range]</code> styles it: 2px tall, dark track, a small blue thumb. The <code>--p</code> CSS variable is updated to fill the track up to the current value.</td>
+      </tr>
+      <tr>
+        <td>JavaScript</td>
+        <td><code>bindRange('sSp', 'vSp', 'speed', S, false, false)</code> has already attached an <code>input</code> listener to that slider. When you drag it, the listener fires, reads the new value, and writes it to <code>S.speed</code>.</td>
+      </tr>
+      <tr>
+        <td>JavaScript (loop)</td>
+        <td>The render loop is running every frame. It reads <code>S.speed</code> to calculate how far to advance <code>S.animAngle</code> this frame. Since you changed <code>S.speed</code>, the rotation immediately speeds up or slows down.</td>
+      </tr>
+    </table>
+
+    <p>All four things happen in under a millisecond. From your perspective: you dragged a slider and the animation changed speed.</p>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════════ index.html -->
+  <div class="part" id="index">
+    <div class="part-label all">Reference</div>
+    <h2>Key pieces of index.html</h2>
+
+    <h3>The importmap — loading Three.js</h3>
+    <p>Three.js is a 3D graphics library. Instead of downloading it, the page loads it from the internet using a <em>module import</em>. The <code>&lt;script type="importmap"&gt;</code> tells the browser where to find it:</p>
+<pre><span class="tag">&lt;script</span> <span class="attr">type</span>=<span class="val">"importmap"</span><span class="tag">&gt;</span>
+{
+  <span class="str">"imports"</span>: {
+    <span class="str">"three"</span>: <span class="str">"https://cdn.jsdelivr.net/npm/three@0.160.0/..."</span>
+  }
+}
+<span class="tag">&lt;/script&gt;</span>
+
+<span class="tag">&lt;script</span> <span class="attr">type</span>=<span class="val">"module"</span><span class="tag">&gt;</span>
+<span class="kw">import</span> * <span class="kw">as</span> THREE <span class="kw">from</span> <span class="str">'three'</span>; <span class="com">// now THREE.* is available</span>
+<span class="tag">&lt;/script&gt;</span></pre>
+
+    <h3>The state objects — S and CS</h3>
+    <p><code>S</code> holds everything about Hopf mode; <code>CS</code> holds everything about slice mode. Keeping all mutable values in one place means any part of the code can read or change them, and you always know where to look.</p>
+
+    <h3>rebuildFibers vs redrawFibers</h3>
+    <p>Creating geometry (allocating memory) is slow. Updating existing geometry is fast. So the code separates these two operations:</p>
+    <ul>
+      <li><code>rebuildFibers()</code> — called only when you change the number of fibers or the segment count. Creates fresh objects.</li>
+      <li><code>redrawFibers()</code> — called every animated frame. Just overwrites the position numbers already in memory. No allocation.</li>
+    </ul>
+
+    <h3>updateSlice()</h3>
+    <p>For the cross-section mode, the sphere geometry never changes — it's always a unit sphere. Instead, <code>sliceMesh.scale.setScalar(r)</code> shrinks or grows it by the right radius each frame. Scaling an existing mesh is even cheaper than rewriting its positions.</p>
+
+    <h3>The math in plain English</h3>
+    <p>The four-dimensional sphere <code>S³</code> contains points that are too far away to see directly. The visualiser uses <strong>stereographic projection</strong> to squash 4D down to 3D: imagine shining a light from the top of S³ onto a flat 3D screen below — every point casts a shadow, and the shadow is what Three.js draws.</p>
+    <p>Rotating in 4D works the same way as rotating in 3D — you pick a <em>plane</em> to rotate in (in 3D you rotate in the xy-plane; in 4D you can also rotate in xw, yw, or zw). The sliders control which 4D plane is spinning.</p>
+  </div>
+
+</div>
+
+<script>
+  // Demo: click counter
+  let clicks = 0;
+  document.getElementById('demoBtn').addEventListener('click', () => {
+    clicks++;
+    document.getElementById('demoCount').textContent =
+      `clicked ${clicks} time${clicks === 1 ? '' : 's'}`;
+  });
+</script>
+</body>
+</html>
