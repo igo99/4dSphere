@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>S³ — 4D Sphere</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #06060e; font-family: 'Courier New', monospace; overflow: hidden; }
+
+    #panel {
+      position: fixed; top: 0; left: 0; bottom: 0; width: 210px;
+      background: rgba(4,4,18,0.94); border-right: 1px solid #0f0f28;
+      padding: 20px 14px; overflow-y: auto; backdrop-filter: blur(12px); z-index: 10;
+    }
+    #panel h1 { font-size: 11px; letter-spacing: 4px; color: #8bc; text-transform: uppercase; }
+    .tagline { font-size: 9px; color: #5560a0; letter-spacing: 1px; margin: 3px 0 14px; }
+
+    /* Mode toggle tabs */
+    .mode-row { display: flex; gap: 5px; margin-bottom: 16px; }
+    .mode-row button {
+      flex: 1; padding: 6px 0; font-size: 9px; letter-spacing: 1px;
+      background: transparent; border: 1px solid #1e1e40;
+      color: #445577; border-radius: 3px; cursor: pointer;
+      font-family: inherit; transition: all 0.1s;
+    }
+    .mode-row button.on { border-color: #4466aa; color: #8bc; }
+    .mode-row button:hover { border-color: #336; color: #8bc; }
+
+    .sec { font-size: 8px; letter-spacing: 2px; color: #5560a0; text-transform: uppercase; margin: 14px 0 8px; }
+    hr.sep { border: none; border-top: 1px solid #1e1e40; margin: 6px 0; }
+
+    .ctrl { margin-bottom: 11px; }
+    .ctrl-head { display: flex; justify-content: space-between; font-size: 9px; color: #8899bb; margin-bottom: 4px; }
+    .ctrl-head .v { color: #9ce; }
+
+    input[type=range] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 2px; border-radius: 1px; outline: none; cursor: pointer;
+      background: linear-gradient(to right, #4488bb var(--p,50%), #111128 var(--p,50%));
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 10px; height: 10px;
+      border-radius: 50%; background: #7ac; cursor: pointer;
+    }
+
+    select {
+      width: 100%; background: #080820; color: #9ce;
+      border: 1px solid #0f0f28; padding: 4px 8px; border-radius: 3px;
+      font-family: inherit; font-size: 9px; outline: none; cursor: pointer;
+    }
+
+    .btn-row { display: flex; gap: 6px; margin-top: 10px; }
+    button {
+      flex: 1; padding: 6px 0;
+      background: transparent; border: 1px solid #1e1e40;
+      color: #7788aa; border-radius: 3px; cursor: pointer;
+      font-family: inherit; font-size: 9px; letter-spacing: 1px;
+      transition: all 0.1s;
+    }
+    button:hover { border-color: #336; color: #8bc; }
+    button.on { border-color: #336; color: #8bc; }
+
+    .slice-info {
+      margin-top: 10px; font-size: 9px; color: #5577aa; line-height: 2;
+      border-top: 1px solid #1e1e40; padding-top: 10px;
+    }
+    .slice-info span { color: #9ce; }
+
+    #info {
+      position: fixed; bottom: 12px; right: 14px;
+      font-size: 9px; color: #445577; line-height: 2.2; text-align: right;
+    }
+    #math {
+      position: fixed; bottom: 12px; left: 224px;
+      font-size: 9px; color: #445577; line-height: 2.2;
+    }
+  </style>
+</head>
+<body>
+
+<div id="panel">
+  <h1>4D Sphere</h1>
+  <div class="tagline" id="tagline">S³ · Hopf fibration</div>
+
+  <div class="mode-row">
+    <button id="bHopf" class="on">Hopf</button>
+    <button id="bSlice">Slice</button>
+  </div>
+
+  <!-- ── Hopf fibration controls ── -->
+  <div id="hopf-ctrl">
+    <div class="sec">Geometry</div>
+    <div class="ctrl">
+      <div class="ctrl-head">Fibers <span class="v" id="vN">64</span></div>
+      <input type="range" id="sN" min="4" max="240" value="64" step="4">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head">Points / fiber <span class="v" id="vSeg">64</span></div>
+      <input type="range" id="sSeg" min="16" max="128" value="64" step="8">
+    </div>
+
+    <hr class="sep">
+    <div class="sec">4D Rotation</div>
+    <div class="ctrl">
+      <div class="ctrl-head">xw plane <span class="v" id="vXW">0°</span></div>
+      <input type="range" id="sXW" min="-180" max="180" value="0">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head">yw plane <span class="v" id="vYW">0°</span></div>
+      <input type="range" id="sYW" min="-180" max="180" value="0">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head">zw plane <span class="v" id="vZW">0°</span></div>
+      <input type="range" id="sZW" min="-180" max="180" value="0">
+    </div>
+
+    <hr class="sep">
+    <div class="sec">Animation</div>
+    <div class="ctrl">
+      <div class="ctrl-head">Speed <span class="v" id="vSp">0.4</span></div>
+      <input type="range" id="sSp" min="0" max="3" value="0.4" step="0.05">
+    </div>
+    <div class="ctrl">
+      <div class="ctrl-head">Rotation plane</div>
+      <select id="selPlane">
+        <option value="xw">xw</option>
+        <option value="yw">yw</option>
+        <option value="zw" selected>zw</option>
+      </select>
+    </div>
+
+    <hr class="sep">
+    <div class="btn-row">
+      <button id="bPause" class="on">pause</button>
+      <button id="bReset">reset</button>
+    </div>
+  </div>
+
+  <!-- ── Cross-section sweep controls ── -->
+  <div id="slice-ctrl" style="display:none">
+    <div class="sec">w position</div>
+    <div class="ctrl">
+      <div class="ctrl-head">w <span class="v" id="vW">0.00</span></div>
+      <input type="range" id="sW" min="-100" max="100" value="0" step="1">
+    </div>
+
+    <hr class="sep">
+    <div class="sec">Animation</div>
+    <div class="ctrl">
+      <div class="ctrl-head">Speed <span class="v" id="vWSp">0.5</span></div>
+      <input type="range" id="sWSp" min="0" max="3" value="0.5" step="0.05">
+    </div>
+
+    <hr class="sep">
+    <div class="btn-row">
+      <button id="bWPause" class="on">pause</button>
+      <button id="bWReset">reset</button>
+    </div>
+
+    <div class="slice-info">
+      radius = √(1 − w²) = <span id="vR">1.000</span><br>
+      <span id="sliceHalf">equator (w = 0)</span>
+    </div>
+  </div>
+</div>
+
+<div id="info">S³ = {x²+y²+z²+w²=1} ⊂ ℝ⁴<br>drag · scroll</div>
+<div id="math">each colored loop is a Hopf fiber<br>any two loops are linked exactly once</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ── Pure math ─────────────────────────────────────────────────────────────────
+
+const TAU = Math.PI * 2;
+
+// Rotation in one of the three 4D planes involving the w-axis.
+// Each plane is a 2D subspace of ℝ⁴; rotating in it mixes two coordinates
+// while leaving the other two unchanged — exactly like a 3D rotation mixes x,y.
+function rot4(v, plane, a) {
+  const [x, y, z, w] = v;
+  const c = Math.cos(a), s = Math.sin(a);
+  if (plane === 'xw') return [x*c - w*s, y,       z,       x*s + w*c];
+  if (plane === 'yw') return [x,          y*c-w*s, z,       y*s + w*c];
+  /*  zw */           return [x,          y,       z*c-w*s, z*s + w*c];
+}
+
+// Stereographic projection S³ \ {north pole} → ℝ³.
+// Draws a line from (0,0,0,1) through (x,y,z,w) and finds where it hits w=0.
+// Formula: (X,Y,Z) = (x,y,z) / (1 - w)
+function stereo([x, y, z, w]) {
+  const d = 1 - w;
+  if (d < 1e-6) return [0, 0, 0];
+  const inv = 1 / d;
+  let sx = x * inv, sy = y * inv, sz = z * inv;
+  const r2 = sx*sx + sy*sy + sz*sz;
+  if (r2 > 49) { const k = 7 / Math.sqrt(r2); sx *= k; sy *= k; sz *= k; }
+  return [sx, sy, sz];
+}
+
+// Hopf fiber over the point (θ,φ) on S².
+// The Hopf map η: S³→S² sends (z₁,z₂) ↦ (2Re(z₁z̄₂), 2Im(z₁z̄₂), |z₁|²−|z₂|²)
+// where z₁=x+iy, z₂=z+iw. Each fiber η⁻¹(p) is a great circle on S³.
+// Parametrised by ψ ∈ [0,2π]; nSeg+1 points close the loop.
+function hopfFiber(theta, phi, nSeg) {
+  const ct = Math.cos(theta * 0.5), st = Math.sin(theta * 0.5);
+  const pts = new Array(nSeg + 1);
+  for (let i = 0; i <= nSeg; i++) {
+    const psi = (i / nSeg) * TAU;
+    pts[i] = [
+      ct * Math.cos(psi),
+      ct * Math.sin(psi),
+      st * Math.cos(psi - phi),
+      st * Math.sin(psi - phi),
+    ];
+  }
+  return pts;
+}
+
+// Evenly-distributed points on S² via Fibonacci spiral.
+// Skips the near-south-pole point whose fiber maps to infinity under stereographic projection.
+function fibSphere(n) {
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const cosT = 1 - (2 * i) / Math.max(n - 1, 1);
+    const theta = Math.acos(Math.min(Math.max(cosT, -1), 1));
+    if (theta > Math.PI * 0.97) continue;
+    out.push({ theta, phi: golden * i });
+  }
+  return out;
+}
+
+// ── Three.js setup ────────────────────────────────────────────────────────────
+
+const PANEL_W = 210;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setClearColor(0x06060e);
+renderer.domElement.style.cssText = `position:fixed;left:${PANEL_W}px;top:0`;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 200);
+camera.position.z = 5.5;
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.04;
+
+function resize() {
+  const w = innerWidth - PANEL_W, h = innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+resize();
+addEventListener('resize', resize);
+
+// ── Hopf fibration objects ────────────────────────────────────────────────────
+
+const fiberGroup = new THREE.Group();
+scene.add(fiberGroup);
+
+// ── Cross-section sweep objects ───────────────────────────────────────────────
+
+const sliceGroup = new THREE.Group();
+sliceGroup.visible = false;
+scene.add(sliceGroup);
+
+// Ghost: the full unit sphere outline; represents S² (the equatorial gluing surface)
+const ghostMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(1, 36, 18),
+  new THREE.MeshBasicMaterial({ color: 0x223355, wireframe: true, transparent: true, opacity: 0.2 })
+);
+sliceGroup.add(ghostMesh);
+
+// The w-slice sphere — unit geometry scaled to radius √(1−w²) each frame
+const sliceMesh = new THREE.Mesh(
+  new THREE.SphereGeometry(1, 36, 18),
+  new THREE.MeshBasicMaterial({ wireframe: true, transparent: true, opacity: 0.75 })
+);
+sliceGroup.add(sliceMesh);
+
+// ── Mutable state ─────────────────────────────────────────────────────────────
+
+const S = {
+  mode: 'hopf',
+  // Hopf state
+  nFibers: 64, nSeg: 64,
+  xw: 0, yw: 0, zw: 0,
+  animAngle: 0, animating: true, speed: 0.4, plane: 'zw',
+};
+
+const CS = {
+  w: 0,
+  angle: 0,        // accumulates; CS.w = sin(CS.angle)
+  speed: 0.5,
+  animating: true,
+};
+
+// ── Hopf geometry builders ────────────────────────────────────────────────────
+
+// Reallocates all line geometries — call when fiber count or segment count changes.
+function rebuildFibers() {
+  fiberGroup.clear();
+  const pts = fibSphere(S.nFibers);
+  pts.forEach(({ theta, phi }) => {
+    const hue = (((phi % TAU) + TAU) % TAU) / TAU;
+    const light = 0.38 + 0.28 * Math.sin(theta);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array((S.nSeg + 1) * 3), 3));
+    const mat = new THREE.LineBasicMaterial({
+      color: new THREE.Color().setHSL(hue, 0.9, light),
+      blending: THREE.AdditiveBlending,
+      transparent: true, opacity: 0.75, depthWrite: false,
+    });
+    fiberGroup.add(new THREE.Line(geo, mat));
+  });
+  redrawFibers();
+}
+
+// Only rewrites buffer positions — safe to call every frame.
+function redrawFibers() {
+  const pts = fibSphere(S.nFibers);
+  const xwA = S.xw + (S.plane === 'xw' ? S.animAngle : 0);
+  const ywA = S.yw + (S.plane === 'yw' ? S.animAngle : 0);
+  const zwA = S.zw + (S.plane === 'zw' ? S.animAngle : 0);
+
+  fiberGroup.children.forEach((line, i) => {
+    if (i >= pts.length) return;
+    const raw = hopfFiber(pts[i].theta, pts[i].phi, S.nSeg);
+    const pos = line.geometry.attributes.position;
+    raw.forEach((p, j) => {
+      let v = p;
+      if (xwA) v = rot4(v, 'xw', xwA);
+      if (ywA) v = rot4(v, 'yw', ywA);
+      if (zwA) v = rot4(v, 'zw', zwA);
+      const [x, y, z] = stereo(v);
+      pos.setXYZ(j, x, y, z);
+    });
+    pos.needsUpdate = true;
+  });
+}
+
+rebuildFibers();
+
+// ── Cross-section updater ─────────────────────────────────────────────────────
+
+// Redraws the slice sphere and syncs all slice UI.
+// The w-slice of S³ is the set {x²+y²+z²+w²=1, w=const} = a 2-sphere of radius √(1−w²).
+// Sweeping w from 0→1 (or 0→-1) stacks these shrinking spheres into a solid ball.
+function updateSlice() {
+  const w = CS.w;
+  const r = Math.sqrt(Math.max(0, 1 - w * w));
+  sliceMesh.scale.setScalar(Math.max(r, 0.001));
+
+  // Hue: orange (w=-1) → blue (w=+1), matching notes color coding
+  const t = (w + 1) * 0.5;
+  sliceMesh.material.color.setHSL(0.08 + t * 0.52, 0.9, 0.55);
+
+  // Sync UI
+  document.getElementById('vW').textContent = w.toFixed(2);
+  document.getElementById('vR').textContent = r.toFixed(3);
+  const wEl = document.getElementById('sW');
+  wEl.value = Math.round(w * 100);
+  trackRange(wEl);
+
+  const half = Math.abs(w) < 0.01 ? 'equator — gluing sphere S²'
+    : w > 0 ? `upper ball  (w > 0)`
+    : `lower ball  (w < 0)`;
+  document.getElementById('sliceHalf').textContent = half;
+}
+
+// ── Mode switching ────────────────────────────────────────────────────────────
+
+function setMode(m) {
+  S.mode = m;
+  fiberGroup.visible = (m === 'hopf');
+  sliceGroup.visible = (m === 'slice');
+
+  document.getElementById('hopf-ctrl').style.display = m === 'hopf' ? '' : 'none';
+  document.getElementById('slice-ctrl').style.display = m === 'slice' ? '' : 'none';
+  document.getElementById('bHopf').classList.toggle('on', m === 'hopf');
+  document.getElementById('bSlice').classList.toggle('on', m === 'slice');
+
+  document.getElementById('tagline').textContent =
+    m === 'hopf' ? 'S³ · Hopf fibration' : 'S³ · cross-section sweep';
+
+  document.getElementById('math').innerHTML = m === 'hopf'
+    ? 'each colored loop is a Hopf fiber<br>any two loops are linked exactly once'
+    : 'each sphere is a w-slice: x²+y²+z² = 1−w²<br>stacking w=0→±1 fills a solid 3-ball';
+
+  if (m === 'hopf') {
+    camera.position.set(0, 0, 5.5);
+  } else {
+    camera.position.set(0, 0, 2.8);
+    updateSlice();
+  }
+  controls.target.set(0, 0, 0);
+  controls.update();
+}
+
+document.getElementById('bHopf').addEventListener('click', () => setMode('hopf'));
+document.getElementById('bSlice').addEventListener('click', () => setMode('slice'));
+
+// ── UI helpers ────────────────────────────────────────────────────────────────
+
+function trackRange(el) {
+  const pct = ((+el.value - +el.min) / (+el.max - +el.min) * 100).toFixed(1);
+  el.style.setProperty('--p', pct + '%');
+}
+
+function bindRange(id, valId, key, obj, deg, rebuild) {
+  const el = document.getElementById(id);
+  const vEl = document.getElementById(valId);
+  trackRange(el);
+  el.addEventListener('input', () => {
+    const raw = parseFloat(el.value);
+    obj[key] = deg ? raw * Math.PI / 180 : raw;
+    vEl.textContent = deg ? raw + '°' : raw;
+    trackRange(el);
+    if (rebuild) rebuildFibers(); else if (S.mode === 'hopf') redrawFibers();
+  });
+}
+
+// Hopf bindings
+bindRange('sN',   'vN',   'nFibers', S, false, true);
+bindRange('sSeg', 'vSeg', 'nSeg',    S, false, true);
+bindRange('sXW',  'vXW',  'xw',      S, true,  false);
+bindRange('sYW',  'vYW',  'yw',      S, true,  false);
+bindRange('sZW',  'vZW',  'zw',      S, true,  false);
+bindRange('sSp',  'vSp',  'speed',   S, false, false);
+
+document.getElementById('selPlane').addEventListener('change', e => { S.plane = e.target.value; });
+
+const bPause = document.getElementById('bPause');
+bPause.addEventListener('click', () => {
+  S.animating = !S.animating;
+  bPause.textContent = S.animating ? 'pause' : 'play';
+  bPause.classList.toggle('on', S.animating);
+});
+
+document.getElementById('bReset').addEventListener('click', () => {
+  S.xw = S.yw = S.zw = S.animAngle = 0;
+  ['sXW','sYW','sZW'].forEach(id => { const e = document.getElementById(id); e.value = 0; trackRange(e); });
+  ['vXW','vYW','vZW'].forEach(id => { document.getElementById(id).textContent = '0°'; });
+  redrawFibers();
+});
+
+// Slice bindings
+document.getElementById('sW').addEventListener('input', e => {
+  CS.w = parseInt(e.target.value) / 100;
+  CS.angle = Math.asin(CS.w);
+  trackRange(e.target);
+  updateSlice();
+});
+
+bindRange('sWSp', 'vWSp', 'speed', CS, false, false);
+
+const bWPause = document.getElementById('bWPause');
+bWPause.addEventListener('click', () => {
+  CS.animating = !CS.animating;
+  bWPause.textContent = CS.animating ? 'pause' : 'play';
+  bWPause.classList.toggle('on', CS.animating);
+});
+
+document.getElementById('bWReset').addEventListener('click', () => {
+  CS.w = 0; CS.angle = 0;
+  updateSlice();
+});
+
+// ── Render loop ───────────────────────────────────────────────────────────────
+
+const clock = new THREE.Clock();
+(function loop() {
+  requestAnimationFrame(loop);
+  controls.update();
+  const dt = clock.getDelta();
+
+  if (S.mode === 'hopf') {
+    if (S.animating && S.speed > 0) {
+      S.animAngle += dt * S.speed;
+      redrawFibers();
+    }
+  } else {
+    if (CS.animating && CS.speed > 0) {
+      CS.angle += dt * CS.speed;
+      CS.w = Math.sin(CS.angle); // oscillates smoothly between -1 and +1
+      updateSlice();
+    }
+  }
+
+  renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>
