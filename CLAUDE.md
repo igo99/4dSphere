@@ -21,7 +21,7 @@ A mathematical visualisation of **S³**, the 4-dimensional unit sphere `{x²+y²
 
 ## Architecture
 
-Everything lives in a single `index.html` file: HTML structure, CSS, and one ES module `<script>`. The file has five logical sections marked with comments.
+Everything lives in a single `index.html` file: HTML structure, CSS, and one ES module `<script>`. The file has six logical sections marked with comments.
 
 ### 1. Pure math
 
